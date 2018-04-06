@@ -54,12 +54,12 @@ api_list <- c('http://overpass-api.de/api/interpreter',
 while (dbGetQuery(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"),
                   paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL")) > 0){
   
-   dbDisconnect(con)
+   dbDisconnect(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"))
   
   id <- dbGetQuery(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"),
                    paste0("SELECT id FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL OFFSET floor(random()*(25-10+1))+10 LIMIT 1"))
   
-   dbDisconnect(con)
+   dbDisconnect(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"))
   
   api_to_use <- sample(1:length(api_list), 1)
   
@@ -76,7 +76,7 @@ while (dbGetQuery(dbConnect(drv, dbname="vito_eu_emissions", user="james", passw
                                                             FROM    eu_nox_points
                                                             WHERE   id = ", id$id))
   
-  dbDisconnect(con)
+  dbDisconnect(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"))
   
   buildings                       <- opq(bbox = c(bbox_attributes$bbox_min_x,
                                                   bbox_attributes$bbox_min_y,
