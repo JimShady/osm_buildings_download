@@ -52,7 +52,7 @@ api_list <- c('http://overpass-api.de/api/interpreter',
               'http://overpass.osm.rambler.ru/cgi/interpreter',
               'https://overpass.kumi.systems/api/interpreter')
 
-while (dbGetQuery(con
+while (dbGetQuery(con,
                   paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL")) > 0){
   
   id <- dbGetQuery(con,
