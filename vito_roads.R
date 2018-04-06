@@ -49,7 +49,7 @@ con = dbConnect(drv, dbname="vito_eu_emissions", user="james", password="briancl
 api_list <- c('http://overpass-api.de/api/interpreter',
               'https://lz4.overpass-api.de/api/interpreter',
               'https://z.overpass-api.de/api/interpreter',
-              'http://overpass.osm.rambler.ru/cgi/interpreter',
+              #'http://overpass.osm.rambler.ru/cgi/interpreter',
               'https://overpass.kumi.systems/api/interpreter')
 
 while (dbGetQuery(con,
