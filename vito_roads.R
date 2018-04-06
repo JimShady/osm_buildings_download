@@ -132,3 +132,5 @@ while (dbGetQuery(con,
   Sys.sleep(5)
   
 }
+
+print(paste0('script broke while using API', api_to_use))
