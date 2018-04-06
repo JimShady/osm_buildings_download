@@ -4,6 +4,10 @@ list.of.packages <- c("RPostgreSQL", "osmdata", "lubridate")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
+library(RPostgreSQL)
+library(osmdata)
+library(lubridate)
+
 drv = dbDriver("PostgreSQL")
 con = dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240")
 
