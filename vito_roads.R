@@ -9,7 +9,6 @@ library(osmdata)
 library(lubridate)
 
 drv = dbDriver("PostgreSQL")
-con = dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240")
 
 # New plan!
 
@@ -52,9 +51,15 @@ api_list <- c('http://overpass-api.de/api/interpreter',
               'http://overpass.osm.rambler.ru/cgi/interpreter',
               'https://overpass.kumi.systems/api/interpreter')
 
-while (dbGetQuery(con, paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL")) > 0){
+while (dbGetQuery(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"),
+                  paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL")) > 0){
   
-  id <- dbGetQuery(con, paste0("SELECT id FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL OFFSET floor(random()*(25-10+1))+10 LIMIT 1"))
+   dbDisconnect(con)
+  
+  id <- dbGetQuery(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"),
+                   paste0("SELECT id FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL OFFSET floor(random()*(25-10+1))+10 LIMIT 1"))
+  
+   dbDisconnect(con)
   
   api_to_use <- sample(1:length(api_list), 1)
   
@@ -62,13 +67,16 @@ while (dbGetQuery(con, paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_typ
   
   # Bbox info to get the buildings data
   
-  bbox_attributes                 <- dbGetQuery(con, paste0("SELECT  
+  bbox_attributes                 <- dbGetQuery(dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240"),
+                                                paste0("SELECT  
                                                             st_xmin(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_min_x,
                                                             st_ymin(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_min_y,
                                                             st_xmax(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_max_x,
                                                             st_ymin(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_max_y
                                                             FROM    eu_nox_points
                                                             WHERE   id = ", id$id))
+  
+  dbDisconnect(con)
   
   buildings                       <- opq(bbox = c(bbox_attributes$bbox_min_x,
                                                   bbox_attributes$bbox_min_y,
