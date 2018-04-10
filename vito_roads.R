@@ -129,8 +129,6 @@ while (dbGetQuery(con,
     dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", 999, " WHERE id = ", id$id))
     print(paste0('Completed ', id$id , ' using API ', api_to_use, ' at ', Sys.time(), ' no buildings found so set as 999'))  }
   
-  Sys.sleep(3)
-  
 }
 
 print(paste0('script broke while using API', api_to_use))
