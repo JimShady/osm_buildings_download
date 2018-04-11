@@ -67,8 +67,8 @@ api_list <- c('http://overpass-api.de/api/interpreter',
                                                        id,
                                                        latlong_buffer_min_x as bbox_min_x,
                                                        latlong_buffer_min_y as bbox_min_y,
-                                                       latlong_buffer_min_x as bbox_max_x,
-                                                       latlong_buffer_min_y as bbox_max_y
+                                                       latlong_buffer_max_x as bbox_max_x,
+                                                       latlong_buffer_max_y as bbox_max_y
                                                        FROM    eu_nox_points
                                                        WHERE   land_type IN (1,2,3)
                                                        AND canyon IS NULL
