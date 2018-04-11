@@ -52,31 +52,32 @@ api_list <- c('http://overpass-api.de/api/interpreter',
               #'http://overpass.osm.rambler.ru/cgi/interpreter',
               'https://overpass.kumi.systems/api/interpreter')
 
-while (dbGetQuery(con,
-                  paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL")) > 0){
-  
-  id <- dbGetQuery(con,
-                   paste0("SELECT id FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL OFFSET floor(random()*(25-10+1))+10 LIMIT 1"))
-  
+#while (dbGetQuery(con,
+#                  paste0("SELECT COUNT(*) FROM eu_nox_points WHERE land_type IN (1,2,3) AND canyon IS NULL")) > 0){
+ for (i in 1:1000000) { 
+
   api_to_use <- sample(1:length(api_list), 1)
   
   set_overpass_url(api_list[api_to_use]) 
   
   # Bbox info to get the buildings data
   
-  bbox_attributes                 <- dbGetQuery(con,
+  query                 <- dbGetQuery(con,
                                                 paste0("SELECT  
-                                                            st_xmin(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_min_x,
-                                                            st_ymin(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_min_y,
-                                                            st_xmax(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_max_x,
-                                                            st_ymin(st_extent(st_transform(st_buffer(the_geom, 100, 'endcap=flat join=round'), 4326))) as bbox_max_y
-                                                            FROM    eu_nox_points
-                                                            WHERE   id = ", id$id))
- 
-  buildings                       <- opq(bbox = c(bbox_attributes$bbox_min_x,
-                                                  bbox_attributes$bbox_min_y,
-                                                  bbox_attributes$bbox_max_x,
-                                                  bbox_attributes$bbox_max_y)) %>% 
+                                                       id,
+                                                       latlong_buffer_min_x as bbox_min_x,
+                                                       latlong_buffer_min_y as bbox_min_y,
+                                                       latlong_buffer_min_x as bbox_max_x,
+                                                       latlong_buffer_min_y as bbox_max_y
+                                                       FROM    eu_nox_points
+                                                       WHERE   land_type IN (1,2,3)
+                                                       AND canyon IS NULL
+                                                       OFFSET floor(random()*(25-10+1))+10 LIMIT 1"))
+  
+  buildings                       <- opq(bbox = c(query$bbox_min_x,
+                                                  query$bbox_min_y,
+                                                  query$bbox_max_x,
+                                                  query$bbox_max_y)) %>% 
     add_osm_feature(key = 'building') %>%
     osmdata_sp()
   
@@ -113,21 +114,21 @@ while (dbGetQuery(con,
   if (!is.null(levels)) { levels <- 3.5 * mean(levels) + 9.625 + 2.265*(mean(levels)/25) }
   
   if (!is.null(levels) & !is.null(height)) {
-    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", (height+levels)/2, " WHERE id = ", id$id))
-    print(paste0('Completed ', id$id , ' using API ', api_to_use, ' at ', Sys.time(), ' set as ', (height+levels)/2))  }
+    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", (height+levels)/2, " WHERE id = ", query$id))
+    print(paste0('Completed ', query$id , ' using API ', api_to_use, ' at ', Sys.time(), ' set as ', (height+levels)/2))  }
   
   if (!is.null(levels) & is.null(height)) {
-    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", levels, " WHERE id = ", id$id))
-    print(paste0('Completed ID ', id$id , ' using API ', api_to_use, ' at ', Sys.time(), ' set as ', levels))  }
+    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", levels, " WHERE id = ", query$id))
+    print(paste0('Completed ID ', query$id , ' using API ', api_to_use, ' at ', Sys.time(), ' set as ', levels))  }
   
   if (is.null(levels) & !is.null(height)) {
-    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", height, " WHERE id = ", id$id))
-    print(paste0('Completed ', id$id , ' using API ', api_to_use, ' at ', Sys.time(), ' set as', height))
+    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", height, " WHERE id = ", query$id))
+    print(paste0('Completed ', query$id , ' using API ', api_to_use, ' at ', Sys.time(), ' set as', height))
   }
   
   if (is.null(levels) & is.null(height)) {
-    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", 999, " WHERE id = ", id$id))
-    print(paste0('Completed ', id$id , ' using API ', api_to_use, ' at ', Sys.time(), ' no buildings found so set as 999'))  }
+    dbGetQuery(con, paste0("UPDATE eu_nox_points SET canyon = ", 999, " WHERE id = ", query$id))
+    print(paste0('Completed ', query$id , ' using API ', api_to_use, ' at ', Sys.time(), ' no buildings found so set as 999'))  }
   
 }
 
