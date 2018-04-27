@@ -9,7 +9,7 @@ library(osmdata)
 library(lubridate)
 
 drv = dbDriver("PostgreSQL")
-con = dbConnect(drv, dbname="vito_eu_emissions", user="james", password="brianclough", host="10.0.4.240")
+con = dbConnect(drv, dbname="vito_eu_emissions", user="***", password="***", host="***")
 
 # New plan!
 
